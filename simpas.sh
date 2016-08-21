@@ -387,14 +387,14 @@ shift $((OPTIND-1))
 SCHUID=$(date +%Y%m%d%H%M%S%z)
 
 # PID file
-PIDFILE=$SCH_TEMP/scheduler_$scheduler_table.pid
+PIDFILE=$SCH_TEMP/scheduler_${scheduler_table}.pid
 
 #work file
-WRK_TBL=$SCH_TEMP/$scheduler_table_$SCHUID.dat
+WRK_TBL=$SCH_TEMP/${scheduler_table}_$SCHUID.dat
 
 # if verbose (-v) is not set, redirect to the log file
 if [ -z $verbose ]; then
-    exec &>>$SCH_LOG/scheduler_$scheduler_table.log;
+    exec &>>$SCH_LOG/scheduler_${scheduler_table}.log;
 fi
 
 log INFO "Starting scheduler for the process table '$scheduler_table'."
