@@ -40,6 +40,9 @@ Periodic jobs are not supported at this time.
 Every table must be saved in a separated file. The table of jobs is a simple
 semicolon separated text.
 
+> **Note** that ";" semicolon is a special character used as separator.
+It must not be used as a part of any parameter below.
+
 The file must be placed in the directory defined by SCH_TABLES variable.
 The file extention must be _"tbl"_.
 
@@ -48,8 +51,7 @@ The file extention must be _"tbl"_.
 of execution.
 * **Process code** - MANDATORY - the job code - only letters and "_"
 (undescore) are allowed.
-* **Process name** - MANDATORY - the job name - free text, _";"_ (semicolon)
-must not be used.
+* **Process name** - MANDATORY - the job name - free text.
 * **Process executable** - MANDATORY - the command to be executed by the job
 _without_ its parameters.
 * **Process options** - MANDATORY - the parameters of the command.
