@@ -53,8 +53,8 @@ nbproject
 .pydevproject
 .settings
 composer.lock
-gpw.sublime-project
-gpw.sublime-workspace
+*.sublime-project
+*.sublime-workspace
 *~
 
 
@@ -64,11 +64,3 @@ gpw.sublime-workspace
 
 # internal #
 ############
-tmp/*
-contrib/*
-log/*
-web/gpwsite/static/images/*
-web/gpwsite/.metadata/*
-tmp
-log
-	
