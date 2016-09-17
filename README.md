@@ -61,6 +61,7 @@ it empty if the jub should be executed at any time.
 empty if the jub should be executed at any time.
 * **Day** - OPTIONAL - the day of month in which the job should be executed,
 optional. Leave empty if the jub should be executed at any time.
+* **Day of Week** - OPTIONAL - the day of week in which the job should be executed. Values range from 1 to 7, 1 is Monday. Leave empty if the jub should be executed at any day.
 * **Hour** - OPTIONAL - the hour at which the job should be executed.
 	* If set, the job will execute at any time during the given hour
 * **Minute** - OPTIONAL - the minute at which the job should be executed.
@@ -80,8 +81,7 @@ terminates correctly.
 * **Exit code** - MANDATORY - the code that the command is expected to return
 if terminates correctly. If a command returns a different code, the job is
 considered failed, the **Output condition** will not be set
-* **Log file** - OPTIONAL - if set, the output of the command will be redirected
-to this file.
+* **Log file** - OPTIONAL - if set, the output of the command will be redirected to this file. If not set, the output will be redirected to the simpas' log.
 
 ###Example
 The file _tables.tbl_ is an example of a simple chain of jobs. You may run it

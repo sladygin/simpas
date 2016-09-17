@@ -73,13 +73,14 @@ function read_table() {
         readarray -t -s 1 p_year_arr < <(cut -d';' -f6 $SCH_TABLES/$scheduler_table.tbl)
         readarray -t -s 1 p_month_arr < <(cut -d';' -f7 $SCH_TABLES/$scheduler_table.tbl)
         readarray -t -s 1 p_day_arr < <(cut -d';' -f8 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_hour_arr < <(cut -d';' -f9 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_min_arr < <(cut -d';' -f10 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_per_arr < <(cut -d';' -f11 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_incond_arr < <(cut -d';' -f12 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_outcond_arr < <(cut -d';' -f13 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_exitcode_arr < <(cut -d';' -f14 $SCH_TABLES/$scheduler_table.tbl)
-        readarray -t -s 1 p_logfile_arr < <(cut -d';' -f15 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_dow_arr < <(cut -d';' -f9 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_hour_arr < <(cut -d';' -f10 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_min_arr < <(cut -d';' -f11 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_per_arr < <(cut -d';' -f12 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_incond_arr < <(cut -d';' -f13 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_outcond_arr < <(cut -d';' -f14 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_exitcode_arr < <(cut -d';' -f15 $SCH_TABLES/$scheduler_table.tbl)
+        readarray -t -s 1 p_logfile_arr < <(cut -d';' -f16 $SCH_TABLES/$scheduler_table.tbl)
         for (( i=0; i<${#p_id_arr[@]}; i++ )); do
             p_done_arr[$i]=0
             p_pid_arr[$i]=0
@@ -93,6 +94,7 @@ function read_table() {
                     log INFO "${p_id_arr[$i]} - ${p_code_arr[$i]} - ${p_name_arr[$i]} - command: ${p_cmd_arr[$i]} ${p_opt_arr[$i]}"
                     log INFO "Execution conditions:"
                     log INFO "- Date: ${p_year_arr[$i]}/${p_month_arr[$i]}/${p_day_arr[$i]}"
+                    log INFO "- Day of Week: ${p_dow_arr[$i]}"
                     log INFO "- Time: ${p_hour_arr[$i]}:${p_min_arr[$i]}"
                     log INFO "- Frequency: ${p_per_arr[$i]}"
                     log INFO "- Start condition: ${p_incond_arr[$i]}"
@@ -108,6 +110,7 @@ function read_table() {
                 log INFO "${p_id_arr[$i]} - ${p_code_arr[$i]} - ${p_name_arr[$i]} - command: ${p_cmd_arr[$i]} ${p_opt_arr[$i]}"
                 log INFO "Execution conditions:"
                 log INFO "- Date: ${p_year_arr[$i]}/${p_month_arr[$i]}/${p_day_arr[$i]}"
+                log INFO "- Day of Week: ${p_dow_arr[$i]}"
                 log INFO "- Time: ${p_hour_arr[$i]}:${p_min_arr[$i]}"
                 log INFO "- Frequency: ${p_per_arr[$i]}"
                 log INFO "- Start condition: ${p_incond_arr[$i]}"
@@ -131,44 +134,57 @@ function check_condition() {
     # if there is not any condition set in the process table to comply with
     # in order to run a command, then we set it so that the check were OK
     if [ -z ${p_year_arr[$proc]} ]; then
-        #log DEBUG "Year not given. Assuming today"
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Year not given. Assuming today"
         p_year_arr[$proc]=$(date -d "${current_date}" +%Y)
     fi;
     if [ -z ${p_month_arr[$proc]} ]; then
-        #log DEBUG "Month not given. Assuming today"
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Month not given. Assuming today"
         p_month_arr[$proc]=$(date -d "${current_date}" +%m)
     fi;
     if [ -z ${p_day_arr[$proc]} ]; then
-        #log DEBUG "Day not given. Assuming today"
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Day not given. Assuming today"
         p_day_arr[$proc]=$(date -d "${current_date}" +%d)
     fi;
+    if [ -z ${p_dow_arr[$proc]} ]; then
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Day of week not given. Assuming today"
+        p_dow_arr[$proc]=$(date -d "${current_date}" +%u)
+    fi;
     if [ -z ${p_hour_arr[$proc]} ]; then
-        #log DEBUG "Hour not given. Assuming now"
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Hour not given. Assuming now"
         p_hour_arr[$proc]=$(date -d "${current_date}" +%H)
     fi;
     if [ -z ${p_min_arr[$proc]} ]; then
-        #log DEBUG "Minutes not given. Assuming now"
+        #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Minutes not given. Assuming now"
         p_min_arr[$proc]=$(date -d "${current_date}" +%M)
     fi;
 
     # determining the full format of the condition date and time
-    local cond_date=$(date -d "${p_year_arr[$proc]}${p_month_arr[$proc]}${p_day_arr[$proc]}" +%Y%m%d)
-    local cond_time=$(date -d "${p_hour_arr[$proc]}${p_min_arr[$proc]}" +%H%M)
+    local cond_date="${p_year_arr[$proc]}${p_month_arr[$proc]}${p_day_arr[$proc]}"
+    local cond_dow="${p_dow_arr[$proc]}"
+    local cond_time="${p_hour_arr[$proc]}${p_min_arr[$proc]}"
 
     # checking date condition
-    #log DEBUG "(check)current date: $current_date"
-    #log DEBUG "(check)cond date: $cond_date"
-    #log DEBUG "(check)cond time: $cond_time"
-    if [ $(date -d "${cond_date}" +%Y%m%d) -eq $(date -d "${current_date}" +%Y%m%d) ]; then
+    if [ ${cond_date} -eq $(date -d "${current_date}" +%Y%m%d) ]; then
         local date_ok=0
-    fi
+    else
+        log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Not scheduled for today - job ignored."
+        echo 255
+        return
+    fi;
+
+    # checking day of week condition
+    if [ ${cond_dow} -eq $(date -d "${current_date}" +%u) ]; then
+        local dow_ok=0
+    else
+        log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Not scheduled for today - job ignored."
+        echo 255
+        return
+    fi;
 
     # checking time condition
-    #log DEBUG "Cond Time: $(date -d "${cond_time}" +%H%M)"
-    #log DEBUG "Curr Time: $(date -d "${current_date}" +%H%M)"
-    if [ $(date -d "${cond_time}" +%H%M) -le $(date -d "${current_date}" +%H%M) ]; then
+    if [ ${cond_time} -le $(date -d "${current_date}" +%H%M) ]; then
         local time_ok=0
-    fi
+    fi;
 
     if [ -z "${p_incond_arr[$proc]}" ]; then
         # no start condition is defined - OK to run
@@ -182,11 +198,11 @@ function check_condition() {
             local incond_ok=0
 #        else
 #            log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Input condition: ${p_incond_arr[$proc]} is not met"
-        fi
-    fi
+        fi;
+    fi;
 
     # determining if all given conditions are fullfilled
-    if [ $date_ok ] && [ $time_ok ] && [ $incond_ok ]; then
+    if [ $date_ok ] && [ $dow_ok ] && [ $time_ok ] && [ $incond_ok ]; then
         log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - GO"
         echo 0
     else
@@ -251,13 +267,21 @@ function run_all() {
             # if process is not started yet (element of p_done_arr=0)
             if [ $((${p_done_arr[$i]})) -eq 0 ]; then
                 # check if process may be run, if so then run it and set condition if OK
-                if [ $(check_condition $i) -eq 0 ]; then
+                local chk=$(check_condition $i)
+                # if the process was set as not scheduled (check_condition returned 255),
+                # it is set as done and its PID is set to -1
+                if [ ${chk} -eq 255 ]; then
+                    p_done_arr[$i]=1
+                    p_pid_arr[$i]=-1
+                    ((proc_to_run--));
+                elif [ ${chk} -eq 0 ]; then
                     p_done_arr[$i]=1
                     # running the process in a subshell
                     $(outcond=$(run_process $i "$simulate" ${p_logfile_arr[$i]}); set_condition $i ${p_outcond_arr[$i]} $outcond) &
                     p_pid_arr[$i]=$!
+                    log DEBUG "(run) PID: ${p_pid_arr[$i]}"
                     # one process less to run
-                    ((proc_to_run--))
+                    ((proc_to_run--));
                 fi;
             fi;
         done;
@@ -295,19 +319,28 @@ function wait() {
     fi;
     while [ $proc_run -gt 0 ]; do
         for (( j=0; j<${#p_pid_arr[@]}; j++ )); do
+            # waiting for the process to finish
+            # ignoring not schedlet jobs (PID = -1)
             if [ ${p_pid_arr[$j]} -gt 0 ]; then
                 pid=$(ps -x | sed -e "s/^[ ]*//" | cut -d" " -f1 | grep ${p_pid_arr[$j]})
                 if [ -z "$pid" ]; then
-                    #log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATED"
+                    log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATED"
                     p_pid_arr[$j]=0
                     ((proc_run--))
-#                else
-                    #log DEBUG "PID Process $j: ${p_pid_arr[$j]} STILL RUNNING"
+                else
+                    log DEBUG "PID Process $j: ${p_pid_arr[$j]} STILL RUNNING"
                 fi;
+            else
+                # if the process was set as not scheduled (check_condition returned 255),
+                # and its PID was set to -1, then no need to wait for it
+                # we mark it as terminated
+                log DEBUG "PID Process $j: ${p_pid_arr[$j]} IGNORED"
+                p_pid_arr[$j]=0
+                ((proc_run--))
             fi;
         done
         sleep $SCH_LOOP_DELAY
-        #log DEBUG "Process to run: $proc_run"
+        log DEBUG "Running process: $proc_run"
     done
 }
 

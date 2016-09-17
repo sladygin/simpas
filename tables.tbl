@@ -1,4 +1,4 @@
-ID;Process Code;Process Name;Process executable;Process Options;Year;Month;Day;Hour;Minute;Periodicity;Start condition;Output condition;Exit code;Log file;
-1;JOB_1;First Job;sleep;30;;;;;;;;JOB_1_OK;0;;
-2;JOB_2;Second job;test.sh;;;;;20;30;;;JOB_2_OK;255;;
-3;JOB_3;Third Job;sleep;30;;;;;;;JOB_1_OK;JOB_3_OK;0;;
+ID;Process Code;Process Name;Process executable;Process Options;Year;Month;Day;Day of Week;Hour;Minute;Periodicity;Start condition;Output condition;Exit code;Log file;
+1;JOB_1;First Job;sleep;30;;;;;;;;;JOB_1_OK;0;;
+2;JOB_2;Second job;test.sh;;;;;;20;30;;;JOB_2_OK;255;;
+3;JOB_3;Third Job;sleep;30;;;;;;;;JOB_1_OK;JOB_3_OK;0;;
