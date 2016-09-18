@@ -26,17 +26,44 @@
 #   log $level this is a $level message;
 # done;
 
+function get_lvl_nb() {
+# error levels
+DBG=("DEBUG" 0)
+INF=("INFO" 1)
+WRN=("WARN" 2)
+ERR=("ERROR" 3)
+LVL_ARR=(
+         DBG[@]
+         INF[@]
+         WRN[@]
+         ERR[@]
+         )
+
+    local lvl=$1
+    # search for corresponding error level number
+    for ((i=0; i<${#LVL_ARR[@]}; i++)); do
+        if [[ "${lvl}" == "${!LVL_ARR[i]:0:1}" ]]; then
+            lvl_nb=${!LVL_ARR[i]:1:1}
+        fi;
+    done;
+    echo ${lvl_nb}
+}
+
+
 log() {
+    # global error level setting
+    LOG_LVL=DEBUG
+
     local level=${1?}
     shift
     local code= line="[$(date '+%F %T')] $level: $*"
     if [ -t 2 ]; then
         case "$level" in
-            INFO)
-                code=36
-                ;;
             DEBUG)
                 code=30
+                ;;
+            INFO)
+                code=36
                 ;;
             WARN)
                 code=33
@@ -47,9 +74,13 @@ log() {
             *)
                 code=37
                 ;;
-        esac
-        echo -e "\e[${code}m${line}\e[0m"
+        esac;
+        if [ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LVL) ]; then
+            echo -e "\e[${code}m${line}\e[0m"
+        fi;
     else
-        echo "$line"
+        if [ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LVL) ]; then
+            echo "$line"
+        fi;
     fi >&2
 }
