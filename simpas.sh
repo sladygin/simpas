@@ -324,19 +324,24 @@ function wait() {
             if [ ${p_pid_arr[$j]} -gt 0 ]; then
                 pid=$(ps -x | sed -e "s/^[ ]*//" | cut -d" " -f1 | grep ${p_pid_arr[$j]})
                 if [ -z "$pid" ]; then
-                    log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATED"
+                    log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATING"
                     p_pid_arr[$j]=0
                     ((proc_run--))
                 else
                     log DEBUG "PID Process $j: ${p_pid_arr[$j]} STILL RUNNING"
                 fi;
-            else
+            elif [ ${p_pid_arr[$j]} -eq 0 ]; then
+                # this process has already terminated, nothing to do
+                log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATED"
+            elif [ ${p_pid_arr[$j]} -eq -1 ]; then
                 # if the process was set as not scheduled (check_condition returned 255),
                 # and its PID was set to -1, then no need to wait for it
                 # we mark it as terminated
-                log DEBUG "PID Process $j: ${p_pid_arr[$j]} IGNORED"
+                log DEBUG "PID Process $j: ${p_pid_arr[$j]} NOT SCHEDULED - IGNORED"
                 p_pid_arr[$j]=0
                 ((proc_run--))
+            else
+                log ERROR "PID Process $j: ${p_pid_arr[$j]} UNKNOWN PROCESS STATE"
             fi;
         done
         sleep $SCH_LOOP_DELAY
