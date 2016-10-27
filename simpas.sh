@@ -322,7 +322,7 @@ function wait() {
             # waiting for the process to finish
             # ignoring not schedlet jobs (PID = -1)
             if [ ${p_pid_arr[$j]} -gt 0 ]; then
-                pid=$(ps -x | sed -e "s/^[ ]*//" | cut -d" " -f1 | grep ${p_pid_arr[$j]})
+                pid=$(ps -x | sed -e "s/^[ ]*//" | cut -d" " -f1 | grep "^${p_pid_arr[$j]}$")
                 if [ -z "$pid" ]; then
                     log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATING"
                     p_pid_arr[$j]=0
@@ -462,7 +462,6 @@ if [ -z $force ]; then
 
         log INFO "All process are terminated. Exiting"
         cleanup
-        exit 0
     fi;
 else
     # one process to force
@@ -483,6 +482,6 @@ else
         wait
 
         log INFO "Process $process_name terminated. Exiting"
-        exit 0
     fi;
-fi
+fi;
+exit 0;
