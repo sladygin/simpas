@@ -173,7 +173,7 @@ function check_condition() {
     fi;
 
     # checking day of week condition
-    if [ ${cond_dow} -eq $(date -d "${current_date}" +%u) ]; then
+    if [ -n $(echo ${cond_dow} | grep -e "$(date -d "${current_date}" +%u)") ]; then
         local dow_ok=0
     else
         log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Not scheduled for today - job ignored."
@@ -362,8 +362,15 @@ function cleanup() {
 }
 
 # run if user hits control-c
-function control_c() {
-  log WARN "*** Ouch! Exiting on user request ***"
+function _control_c() {
+  log WARN "*** Exiting on user request ***"
+  cleanup
+  exit $?
+}
+
+# run if user hits control-c
+function _terminate() {
+  log WARN "*** Exiting on TERM signal ***"
   cleanup
   exit $?
 }
@@ -372,7 +379,8 @@ function control_c() {
 # --- Main ---
 #--------------
 # trap keyboard interrupt (control-c)
-trap control_c SIGINT
+trap _control_c SIGINT
+trap _terminate SIGTERM
 
 #Check the number of arguments. If none is passed, print help and exit.
 NUMARGS=$#

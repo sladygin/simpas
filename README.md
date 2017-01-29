@@ -61,7 +61,7 @@ The file extention must be _"tbl"_.
   empty if the jub should be executed at any time.
 * **Day** - OPTIONAL - the day of month in which the job should be executed,
   optional. Leave empty if the jub should be executed at any time.
-* **Day of Week** - OPTIONAL - the day of week in which the job should be executed. Values range from 1 to 7, 1 is Monday. Leave empty if the jub should be executed at any day.
+* **Day of Week** - OPTIONAL - the day or days of week (comma separated) at which the job should be executed. Values range from 1 to 7, 1 is Monday. Leave empty if the jub should be executed everyday.
 * **Hour** - OPTIONAL - the hour at which the job should be executed.
   * If set, the job will execute at any time during the given hour
 * **Minute** - OPTIONAL - the minute at which the job should be executed.

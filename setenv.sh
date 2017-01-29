@@ -3,7 +3,7 @@
 #
 #    Simpas - SIMPle Asynchronous Scheduler
 #    Configuration file
-#    
+#
 #    Copyright (C) 2016  Slawomir Ladygin
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #
 #
 
-SCH_LOOP_DELAY=30
-SCH_TEMP=
-SCH_LOG=
-SCH_TABLES=
+SCH_LOOP_DELAY=5
+SCH_TEMP=.
+SCH_LOG=.
+SCH_TABLES=.
