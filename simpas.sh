@@ -26,11 +26,17 @@
 #
 
 
-# simpas variables
-. ./setenv.sh
+# loading environment variables
+_dir=$(dirname "$(readlink -f "$0")")
+_config=("/etc/simpas/setenv.sh" "/usr/local/etc/simpas/setenv.sh" "${_dir}/conf/setenv.sh" "${_dir}/setenv.sh")
+for (( i=0; i<${#_config[@]}; i++ )); do
+    if [[ -f ${_config[$i]} ]]; then
+        source ${_config[$i]}
+    fi;
+done;
 
 # libraries
-. ./logging.sh
+source ${_dir}/conf/logging.sh
 
 # by default redirect output to stderr:
 exec >&2
