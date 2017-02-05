@@ -36,7 +36,7 @@ for (( i=0; i<${#_config[@]}; i++ )); do
 done;
 
 # libraries
-source ${_dir}/conf/logging.sh
+source ${_dir}/utils/logging.sh
 
 # by default redirect output to stderr:
 exec >&2
