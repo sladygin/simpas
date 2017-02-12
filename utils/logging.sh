@@ -1,24 +1,5 @@
 #!/bin/bash
 #
-#    Simpas - SIMPle Asynchronous Scheduler
-#    Logging utility
-#    
-#    Copyright (C) 2016  Slawomir Ladygin
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
 # Print message $3 with log-level $1 and options $2 to STDERR,
 # colorized if terminal
 # Example:
@@ -52,12 +33,14 @@ LVL_ARR=(
 
 log() {
     # global error level setting
-    LOG_LVL=DEBUG
+    if [[ -z $LOG_LEVEL ]]; then
+        LOG_LEVEL=INFO
+    fi;
 
     local level=${1?}
     shift
     local code= line="[$(date '+%F %T')] $level: $*"
-    if [ -t 2 ]; then
+    if [[ -t 2 ]]; then
         case "$level" in
             DEBUG)
                 code=30
@@ -75,11 +58,11 @@ log() {
                 code=37
                 ;;
         esac;
-        if [ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LVL) ]; then
+        if [[ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LEVEL) ]]; then
             echo -e "\e[${code}m${line}\e[0m"
         fi;
     else
-        if [ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LVL) ]; then
+        if [[ $(get_lvl_nb $level) -ge $(get_lvl_nb $LOG_LEVEL) ]]; then
             echo "$line"
         fi;
     fi >&2

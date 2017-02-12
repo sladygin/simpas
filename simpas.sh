@@ -65,7 +65,7 @@ function usage()
 function read_table() {
     local proc=$1
 
-    if [ ! -f $SCH_TABLES/$scheduler_table.tbl ]; then
+    if [[ ! -f $SCH_TABLES/$scheduler_table.tbl ]]; then
         log ERROR "Could not find the process table '$scheduler_table'. Exiting."
         cleanup
         exit 1;
@@ -92,11 +92,11 @@ function read_table() {
             p_pid_arr[$i]=0
         done
 
-        if [ -n "$proc" ]; then
+        if [[ -n "$proc" ]]; then
             # info if one process forced
             log INFO "Done. 1 forced process to run:"
             for (( i=0; i<${#p_code_arr[@]}; i++ )); do
-                if [ "${p_code_arr[$i]}" = "$proc" ]; then
+                if [[ "${p_code_arr[$i]}" = "$proc" ]]; then
                     log INFO "${p_id_arr[$i]} - ${p_code_arr[$i]} - ${p_name_arr[$i]} - command: ${p_cmd_arr[$i]} ${p_opt_arr[$i]}"
                     log INFO "Execution conditions:"
                     log INFO "- Date: ${p_year_arr[$i]}/${p_month_arr[$i]}/${p_day_arr[$i]}"
@@ -139,27 +139,27 @@ function check_condition() {
 
     # if there is not any condition set in the process table to comply with
     # in order to run a command, then we set it so that the check were OK
-    if [ -z ${p_year_arr[$proc]} ]; then
+    if [[ -z ${p_year_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Year not given. Assuming today"
         p_year_arr[$proc]=$(date -d "${current_date}" +%Y)
     fi;
-    if [ -z ${p_month_arr[$proc]} ]; then
+    if [[ -z ${p_month_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Month not given. Assuming today"
         p_month_arr[$proc]=$(date -d "${current_date}" +%m)
     fi;
-    if [ -z ${p_day_arr[$proc]} ]; then
+    if [[ -z ${p_day_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Day not given. Assuming today"
         p_day_arr[$proc]=$(date -d "${current_date}" +%d)
     fi;
-    if [ -z ${p_dow_arr[$proc]} ]; then
+    if [[ -z ${p_dow_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Day of week not given. Assuming today"
         p_dow_arr[$proc]=$(date -d "${current_date}" +%u)
     fi;
-    if [ -z ${p_hour_arr[$proc]} ]; then
+    if [[ -z ${p_hour_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Hour not given. Assuming now"
         p_hour_arr[$proc]=$(date -d "${current_date}" +%H)
     fi;
-    if [ -z ${p_min_arr[$proc]} ]; then
+    if [[ -z ${p_min_arr[$proc]} ]]; then
         #log DEBUG "${p_id_arr[$proc]} - ${p_code_arr[$proc]}: Minutes not given. Assuming now"
         p_min_arr[$proc]=$(date -d "${current_date}" +%M)
     fi;
@@ -170,7 +170,7 @@ function check_condition() {
     local cond_time="${p_hour_arr[$proc]}${p_min_arr[$proc]}"
 
     # checking date condition
-    if [ ${cond_date} -eq $(date -d "${current_date}" +%Y%m%d) ]; then
+    if [[ ${cond_date} -eq $(date -d "${current_date}" +%Y%m%d) ]]; then
         local date_ok=0
     else
         log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Not scheduled for today - job ignored."
@@ -179,7 +179,7 @@ function check_condition() {
     fi;
 
     # checking day of week condition
-    if [ -n $(echo ${cond_dow} | grep -e "$(date -d "${current_date}" +%u)") ]; then
+    if [[ -n "$(echo ${cond_dow} | grep -e "$(date -d "${current_date}" +%u)")" ]]; then
         local dow_ok=0
     else
         log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Not scheduled for today - job ignored."
@@ -188,27 +188,27 @@ function check_condition() {
     fi;
 
     # checking time condition
-    if [ ${cond_time} -le $(date -d "${current_date}" +%H%M) ]; then
+    if [[ ${cond_time} -le $(date -d "${current_date}" +%H%M) ]]; then
         local time_ok=0
     fi;
 
-    if [ -z "${p_incond_arr[$proc]}" ]; then
+    if [[ -z "${p_incond_arr[$proc]}" ]]; then
         # no start condition is defined - OK to run
-        #log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - No input condition."
+        log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - No input condition."
         local incond_ok=0
     else
         # a start condition is defined
         # searching if the given condition has already been set by a previous job
-        if [ -n "$(cat $WRK_TBL | grep ${p_incond_arr[$proc]})" ]; then
-#            log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Input condition: ${p_incond_arr[$proc]} is met"
+        if [[ -n "$(cat $WRK_TBL | grep ${p_incond_arr[$proc]})" ]]; then
+            log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Input condition: ${p_incond_arr[$proc]} is met"
             local incond_ok=0
-#        else
-#            log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Input condition: ${p_incond_arr[$proc]} is not met"
+        else
+            log DEBUG "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Input condition: ${p_incond_arr[$proc]} is not met"
         fi;
     fi;
 
     # determining if all given conditions are fullfilled
-    if [ $date_ok ] && [ $dow_ok ] && [ $time_ok ] && [ $incond_ok ]; then
+    if [[ $date_ok ]] && [[ $dow_ok ]] && [[ $time_ok ]] && [[ $incond_ok ]]; then
         log INFO "(check)${p_code_arr[$proc]}-${p_name_arr[$proc]} - GO"
         echo 0
     else
@@ -227,14 +227,14 @@ function run_process() {
     local command="${p_cmd_arr[$proc]} ${p_opt_arr[$proc]}"
 
     # if scheduler is running in mode 'dummy' then the command is showed only
-    if [ -n "$dummy" ]; then
+    if [[ -n "$dummy" ]]; then
         log INFO "(run)${p_code_arr[$proc]}-${p_name_arr[$proc]} - SIMULATING COMMAND: $command"
         local ret=0
     else
         # if not - then the real command is called
         log INFO "(run)${p_code_arr[$proc]}-${p_name_arr[$proc]} - COMMAND: $command"
         # exit to the log file
-        if [ -n "$logfile" ]; then
+        if [[ -n "$logfile" ]]; then
             $command &>>"$logfile"
         else
             $command
@@ -243,7 +243,7 @@ function run_process() {
     fi
 
     # veryfing if the command returned the expected return code
-    if [ "$ret" = "${p_exitcode_arr[$proc]}" ]; then
+    if [[ "$ret" = "${p_exitcode_arr[$proc]}" ]]; then
         log INFO "(run)${p_code_arr[$proc]}-${p_name_arr[$proc]} - TERMINATED, return code: ${p_exitcode_arr[$proc]}"
     else
         log ERROR "(run)${p_code_arr[$proc]}-${p_name_arr[$proc]} - FAILED, return code: $ret"
@@ -257,7 +257,7 @@ function set_condition() {
     local condition=$2
     local ret=$3
 
-    if [ "$ret" = "${p_exitcode_arr[$proc]}" ]; then
+    if [[ "$ret" = "${p_exitcode_arr[$proc]}" ]]; then
         log INFO "(run)${p_code_arr[$proc]}-${p_name_arr[$proc]} - Setting ${p_outcond_arr[$proc]}"
         echo "$condition" >> $WRK_TBL
     fi;
@@ -267,20 +267,20 @@ function set_condition() {
 function run_all() {
     # start and continue until all processes are done
     proc_to_run=${#p_id_arr[@]}
-    while [ $proc_to_run -gt 0 ]; do
+    while [[ $proc_to_run -gt 0 ]]; do
         #log DEBUG "process to run: $proc_to_run"
         for (( i=0; i<${#p_id_arr[@]}; i++ )); do
             # if process is not started yet (element of p_done_arr=0)
-            if [ $((${p_done_arr[$i]})) -eq 0 ]; then
+            if [[ $((${p_done_arr[$i]})) -eq 0 ]]; then
                 # check if process may be run, if so then run it and set condition if OK
                 local chk=$(check_condition $i)
                 # if the process was set as not scheduled (check_condition returned 255),
                 # it is set as done and its PID is set to -1
-                if [ ${chk} -eq 255 ]; then
+                if [[ ${chk} -eq 255 ]]; then
                     p_done_arr[$i]=1
                     p_pid_arr[$i]=-1
                     ((proc_to_run--));
-                elif [ ${chk} -eq 0 ]; then
+                elif [[ ${chk} -eq 0 ]]; then
                     p_done_arr[$i]=1
                     # running the process in a subshell
                     $(outcond=$(run_process $i "$simulate" ${p_logfile_arr[$i]}); set_condition $i ${p_outcond_arr[$i]} $outcond) &
@@ -299,7 +299,7 @@ function run_all() {
 function force_process() {
     # force given process
     for (( i=0; i<${#p_id_arr[@]}; i++ )); do
-        if [ "${p_code_arr[$i]}" = "$process_name" ]; then
+        if [[ "${p_code_arr[$i]}" = "$process_name" ]]; then
             local found="yes"
             p_done_arr[$i]=1
             # running the process in a subshell
@@ -307,7 +307,7 @@ function force_process() {
             p_pid_arr[$i]=$!
         fi;
     done;
-    if [ -z $found ]; then
+    if [[ -z $found ]]; then
         log ERROR "Process $process_name not found in the table $scheduler_table."
         exit 1
     fi
@@ -318,16 +318,16 @@ function wait() {
     local all=$1
 
     # checking if all started process are terminated
-    if [ "$all" = "all" ]; then
+    if [[ "$all" = "all" ]]; then
         proc_run=${#p_pid_arr[@]}
     else
         proc_run=1
     fi;
-    while [ $proc_run -gt 0 ]; do
+    while [[ $proc_run -gt 0 ]]; do
         for (( j=0; j<${#p_pid_arr[@]}; j++ )); do
             # waiting for the process to finish
             # ignoring not schedlet jobs (PID = -1)
-            if [ ${p_pid_arr[$j]} -gt 0 ]; then
+            if [[ ${p_pid_arr[$j]} -gt 0 ]]; then
                 pid=$(ps -x | sed -e "s/^[ ]*//" | cut -d" " -f1 | grep "^${p_pid_arr[$j]}$")
                 if [ -z "$pid" ]; then
                     log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATING"
@@ -336,10 +336,10 @@ function wait() {
                 else
                     log DEBUG "PID Process $j: ${p_pid_arr[$j]} STILL RUNNING"
                 fi;
-            elif [ ${p_pid_arr[$j]} -eq 0 ]; then
+            elif [[ ${p_pid_arr[$j]} -eq 0 ]]; then
                 # this process has already terminated, nothing to do
                 log DEBUG "PID Process $j: ${p_pid_arr[$j]} TERMINATED"
-            elif [ ${p_pid_arr[$j]} -eq -1 ]; then
+            elif [[ ${p_pid_arr[$j]} -eq -1 ]]; then
                 # if the process was set as not scheduled (check_condition returned 255),
                 # and its PID was set to -1, then no need to wait for it
                 # we mark it as terminated
@@ -445,16 +445,16 @@ PIDFILE=$SCH_TEMP/scheduler_${scheduler_table}.pid
 WRK_TBL=$SCH_TEMP/${scheduler_table}_$SCHUID.dat
 
 # if verbose (-v) is not set, redirect to the log file
-if [ -z $verbose ]; then
+if [[ -z $verbose ]]; then
     exec &>>$SCH_LOG/scheduler_${scheduler_table}.log;
 fi
 
 log INFO "Starting scheduler for the process table '$scheduler_table'."
 log INFO "UID: $SCHUID"
 
-if [ -z $force ]; then
+if [[ -z $force ]]; then
     # all process to run
-    if [ -f $PIDFILE ]; then
+    if [[ -f $PIDFILE ]]; then
         # checking if scheduler is already running
         log ERROR "Another scheduler is running for the same table ($scheduler_table). Exiting."
         exit 1;
@@ -479,7 +479,7 @@ if [ -z $force ]; then
     fi;
 else
     # one process to force
-    if [ -z $process_name ]; then
+    if [[ -z $process_name ]]; then
         # check if the process's name is given (with -f parameter)
         log ERROR "No process given"
         exit 1
