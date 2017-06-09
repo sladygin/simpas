@@ -17,15 +17,6 @@ Copy _simpas.sh_, _setenv.sh_ and _logging.sh_ to a directory.
 Define the variables in _setenv.sh_, according to your environment and your
 needs:
 
-* **SCH\_LOOP_DELAY** - in seconds
-
-  Delay between the checks if conditions are met. Set to 30 seconds
-  by default.
-
-  > **Note** that setting this value to 60 seconds or more makes that there
-  > will be no guarantee that a job will be executed exactly at given hour
-  > and minute.
-
 * **SCH_TEMP** - temporary directory
 
 * **SCH_LOG** - log directory

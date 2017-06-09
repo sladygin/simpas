@@ -65,6 +65,7 @@ function usage()
 function read_table() {
     local proc=$1
 
+
     if [[ ! -f $SCH_TABLES/$scheduler_table.tbl ]]; then
         log ERROR "Could not find the process table '$scheduler_table'. Exiting."
         cleanup
@@ -291,7 +292,7 @@ function run_all() {
                 fi;
             fi;
         done;
-        sleep $SCH_LOOP_DELAY
+        sleep 5;
     done;
 }
 
@@ -350,7 +351,7 @@ function wait() {
                 log ERROR "PID Process $j: ${p_pid_arr[$j]} UNKNOWN PROCESS STATE"
             fi;
         done
-        sleep $SCH_LOOP_DELAY
+        sleep 5
         log DEBUG "Running process: $proc_run"
     done
 }
@@ -417,6 +418,9 @@ while getopts ":t:f:svh" opt; do
         cleanup
         exit 0
         ;;
+    o)  # run simpas only once per day
+        onceperday="yes"
+        ;;
     :)  #
         echo "Option -${OPTARG} requires an argument"
         usage
@@ -447,10 +451,18 @@ WRK_TBL=$SCH_TEMP/${scheduler_table}_$SCHUID.dat
 # if verbose (-v) is not set, redirect to the log file
 if [[ -z $verbose ]]; then
     exec &>>$SCH_LOG/scheduler_${scheduler_table}.log;
-fi
+fi;
 
 log INFO "Starting scheduler for the process table '$scheduler_table'."
 log INFO "UID: $SCHUID"
+today=$(date +%Y%m%d);
+if [[ "${onceperday}" = "yes" ]]; then
+    lastdate=$(cat ${SCH_DATA}/last_${scheduler_table}.txt)
+    if [[ ${today} -eq ${lastdate}} ]]; then
+        log INFO "The scheduler for the process table '$scheduler_table' has already run today. Exiting"
+        exit 0;
+    fi;
+fi;
 
 if [[ -z $force ]]; then
     # all process to run
@@ -498,4 +510,8 @@ else
         log INFO "Process $process_name terminated. Exiting"
     fi;
 fi;
+
+# setting last run date
+echo ${today} > ${SCH_DATA}/last_${scheduler_table}.txt;
+
 exit 0;
