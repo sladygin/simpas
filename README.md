@@ -14,7 +14,7 @@ Simpas needs Bash 4 or later to work.
 ## Installation and configuration
 Copy _simpas.sh_, _setenv.sh_ and _logging.sh_ to a directory.
 
-Define the variables in _setenv.sh_, according to your environment and your
+Define the variables in _simpasrc_, according to your environment and your
 needs:
 
 * **SCH_TEMP** - temporary directory
@@ -116,20 +116,27 @@ is _tables.tbl_
 
 Options are:
 
+**-c** <config file\> - OPTIONAL - path to the config file
+
 **-f** <process name\> - OPTIONAL - force one process to run
 
 > This option may be useful when one of the jobs didn't set a condition thus
 > blocking the execution of other jobs and the whole chain to be finished.
 
-**-v** - verbose - OPTIONAL - all messages will be shown on the console instead
-of saved in a log file
+**-h** - help - OPTIONAL - show help and exit
+
+**-o** - once per day - OPTIONAL - scheduler will run jobs only once per day
+even if called many times
 
 **-s** - simulate - OPTIONAL - simulates the scheduler run, no command will
 be executed
 
+**-v** - verbose - OPTIONAL - all messages will be shown on the console instead
+of saved in a log file
+
 When all jobs are terminated simpas exists with code 0.
 
-> _Simpas is not a daemon_ that turns until it gets killed. It terminates
+> _Simpas is not a daemon_ that runs until it gets killed. It terminates
 > as soon as the last job from the chain is executed.
 
 > **Note** that it is possible that a chain will not terminate if one or more jobs
@@ -152,5 +159,5 @@ conditions are met or not
 ...
 
 ### TODO
-1. Add multiple start conditions
-2. Make the support for periodic jobs
+1. Multiple start conditions
+2. Support for periodic jobs

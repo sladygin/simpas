@@ -19,6 +19,7 @@
 #
 #Usage: $0 [options]"
 #Options are:"
+#  -c <file>            - configuration file
 #  -t <scheduler table> - mandatory - table of process
 #  -f <process name>    - force given process to run
 #  -v - verbose         - all messages will show on console instead of the log file
@@ -28,7 +29,12 @@
 
 # loading environment variables
 _dir=$(dirname "$(readlink -f "$0")")
-_config=("/etc/simpas/setenv.sh" "/usr/local/etc/simpas/setenv.sh" "${_dir}/conf/setenv.sh" "${_dir}/setenv.sh")
+_config=("/etc/simpas/simpasrc" \
+         "/usr/local/etc/simpas/simpasrc" \
+         "${_dir}/conf/simpasrc" \
+         "${_dir}/simpasrc" \
+         "~/.config/simpasrc" \
+         "~/.simpasrc")
 for (( i=0; i<${#_config[@]}; i++ )); do
     if [[ -f ${_config[$i]} ]]; then
         source ${_config[$i]}
@@ -54,10 +60,11 @@ function usage()
     echo "  <scheduler table> - is the name of the table of process to run"
     echo ""
     echo "Optional arguments:"
+    echo "  -c <file>            - configuration file"
     echo "  -f <process name>    - force given process to run"
+    echo "  -s - simulate        - simulating scheduler run, no command will be executed"
     echo "  -v - verbose         - all messages will be shown on the console instead"
     echo "                         of being sent to the log file"
-    echo "  -s - simulate        - simulating scheduler run, no command will be executed"
     echo ""
 }
 
@@ -400,26 +407,29 @@ fi
 # check options
 while getopts ":t:f:svh" opt; do
     case $opt in
-    t)  # process table
-        scheduler_table=${OPTARG}
+    c)  # load configuration file
+        source ${OPTARG}
         ;;
     f)  # force given process
         force="yes"
         process_name=${OPTARG}
         ;;
-    v)  # wyjscie na konsole
-        verbose="yes"
+    o)  # run simpas only once per day
+        onceperday="yes"
         ;;
-    s)  # symulacja przebiegu
+    s)  # simulate
         simulate="yes"
+        ;;
+    t)  # process table
+        scheduler_table=${OPTARG}
+        ;;
+    v)  # exit to stdout
+        verbose="yes"
         ;;
     h)  # show help and exit
         usage
         cleanup
         exit 0
-        ;;
-    o)  # run simpas only once per day
-        onceperday="yes"
         ;;
     :)  #
         echo "Option -${OPTARG} requires an argument"
